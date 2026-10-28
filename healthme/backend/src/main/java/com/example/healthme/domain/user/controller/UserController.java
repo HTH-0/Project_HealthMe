@@ -101,7 +101,9 @@ public class UserController {
     @PostMapping("/find-username")
     public ResponseEntity<?> findUsername(@RequestBody Map<String, String> request) {
         String username = request.get("username");
-        String userid = userService.findUseridByName(username);
+        String tel = request.get("tel");
+
+        String userid = userService.findUseridByUsernameAndTel(username, tel);
 
         if (userid != null) {
             return ResponseEntity.ok(userid);

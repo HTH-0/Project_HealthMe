@@ -88,8 +88,9 @@ public class UserService {
 
         User user = User.builder()
                 .userid(userid)
-                .password(passwordEncoder.encode("1234")) // 초기 비밀번호
                 .username(username)
+                // 소셜 로그인은 별도 비밀번호 로그인을 사용하지 않으므로 랜덤 비밀번호 설정
+                .password(passwordEncoder.encode(UUID.randomUUID().toString()))
                 .provider(provider)
                 .providerId(providerId)
                 .role("ROLE_USER")
@@ -123,14 +124,48 @@ public class UserService {
         return userRepository.existsByUserid(userid);
     }
 
-    public String findUseridByName(String username) {
-        List<User> users = userRepository.findByUsername(username);
-        if (users.isEmpty()) {
-            return null;
+    public String findUseridByUsernameAndTel(String username, String tel) {
+    if (username == null || username.isBlank()
+            || tel == null || tel.isBlank()) {
+        return null;
+    }
+
+    username = username.trim();
+    tel = tel.trim();
+
+    List<User> users =
+            userRepository.findByUsernameAndTel(username, tel);
+
+    if (users.isEmpty()) {
+        return null;
+    }
+
+    return maskUserid(users.get(0).getUserid());
+}
+
+private String maskUserid(String userid) {
+    if (userid == null || userid.isBlank()) {
+        return userid;
         }
 
-        // 동일 이름 중 가장 먼저 등록된 사용자 반환
-        return users.get(0).getUserid();
+    if (userid.contains("@")) {
+        String[] parts = userid.split("@", 2);
+        String localPart = parts[0];
+        String domain = parts[1];
+
+        int visibleLength = Math.min(2, localPart.length());
+
+        return localPart.substring(0, visibleLength)
+                + "****@" + domain;
+        }
+
+    if (userid.length() <= 3) {
+            return userid.substring(0, 1)
+                + "*".repeat(userid.length() - 1);
+        }
+
+        return userid.substring(0, 3)
+            + "*".repeat(userid.length() - 3);
     }
     public void sendTemporaryPassword(String username, String userid) {
         User user = userRepository.findByUsernameAndUserid(username, userid)

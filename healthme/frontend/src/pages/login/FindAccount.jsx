@@ -7,10 +7,11 @@ const FindAccount = () => {
 
     const [username, setUsername] = useState('');  // 사용자 이름
     const [userid, setUserid] = useState('');      // 이메일 (아이디)
+    const [tel, setTel] = useState(""); // 사용자 전화번호
     const [loading, setLoading] = useState(false);
 
     const handleFindUsername = () => {
-        axios.post("/healthme/users/find-username", { username })
+        axios.post("/healthme/users/find-username", { username, tel })
             .then(res => {
                 console.log("백엔드 응답:", res.data);
                 alert(`아이디(이메일): ${res.data}`)
@@ -50,6 +51,12 @@ const FindAccount = () => {
                         placeholder="이름"
                         value={username}
                         onChange={e => setUsername(e.target.value)}
+                    />
+                    <input
+                        type="tel"
+                        placeholder="전화번호 (010-1234-5678)"
+                        value={tel}
+                        onChange={e => setTel(e.target.value)}
                     />
                     <button onClick={handleFindUsername}>아이디 찾기</button>
                 </div>
