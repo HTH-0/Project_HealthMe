@@ -60,6 +60,12 @@ public class UserController {
     }
     
     
+    // CSRF 토큰 쿠키 발급용. 로그인 전 첫 화면에서 한 번 호출해 XSRF-TOKEN 쿠키를 받아 둔다.
+    @GetMapping("/csrf")
+    public ResponseEntity<Void> csrf() {
+        return ResponseEntity.noContent().build();
+    }
+
     // 로그인 중복확인
     @GetMapping("/check")
     public Map<String, Boolean> checkUserid(@RequestParam String userid) {

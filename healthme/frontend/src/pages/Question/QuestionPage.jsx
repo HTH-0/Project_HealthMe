@@ -53,7 +53,11 @@ const NutritionSurvey = () => {
       const res = await fetch("/healthme/survey", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          // CSRF: fetch는 axios와 달리 토큰 헤더를 자동으로 붙이지 않는다.
+          "X-XSRF-TOKEN": decodeURIComponent(
+            (document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]*)/) || [])[1] || ""
+          ),
         },
         credentials: "include",
         body: JSON.stringify({ answers }),

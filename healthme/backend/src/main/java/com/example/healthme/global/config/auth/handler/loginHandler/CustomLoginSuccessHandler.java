@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -29,6 +30,13 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 										Authentication authentication) throws IOException {
 
 		log.info("로그인 성공, JWT 발급 시작");
+
+		// CSRF: 로그인하면 Spring Security가 기존 XSRF-TOKEN 쿠키를 지운다.
+		// 로그인 직후 바로 보내는 POST가 거부되지 않도록 새 토큰을 읽어 쿠키로 다시 내려준다.
+		CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+		if (csrfToken != null) {
+			csrfToken.getToken();
+		}
 
 		// 토큰 생성
 		TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication);
